@@ -1,0 +1,5 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/care_package/chrome"
+	"$surfaceprop" "Metal_Box"
+}
