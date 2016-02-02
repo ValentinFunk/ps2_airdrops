@@ -44,19 +44,25 @@ hook.Add( "PS2_ModulesLoaded", "DLC_AirDrops", function( )
       label = "Drop frequency random variation (in percent)",
       tooltip = "Make drops less predictable: If this is set to 20%, and drop frequency is set to 10 min, the actual drop frequency will be between 8 and 12 minutes."
     },
+		MinPlayers = {
+			value = 4,
+			label = "Minumum Players",
+			tooltip = "Minimum amount of players for a crate to drop"
+		}
+	}
+
+	MODULE.Settings.Server.AirdropCrateSettings = {
+		info = {
+			label = "Crate Settings",
+		},
 		AmountOfItems = {
 			value = 5,
 			label = "Amount of items in a crate",
 		},
 		CrateLifetime = {
 			value = 10,
-			label = "Crate Lifetime (in minutes)",
+			label = "Lifetime (in minutes)",
 			tooltip = "Time until a crate is automatically removed"
-		},
-		MinPlayers = {
-			value = 4,
-			label = "Minumum Players",
-			tooltip = "Minimum amount of players for a crate to drop"
 		}
 	}
 

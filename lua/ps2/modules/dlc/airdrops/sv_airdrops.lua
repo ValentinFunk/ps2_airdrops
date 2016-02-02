@@ -97,7 +97,7 @@ function Pointshop2.Airdrops.StartAirDrop( )
   end
 
   local spot = table.Random( validSpots )
-  local crateContents = Pointshop2.Airdrops.CreateTempItems( Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsSettings.AmountOfItems" ) )
+  local crateContents = Pointshop2.Airdrops.CreateTempItems( Pointshop2.GetSetting( "Pointshop 2 DLC", "AirdropCrateSettings.AmountOfItems" ) )
 
   -- Create helicopter
   local helicopter = ents.Create( "sent_supplyhelo" )
@@ -123,7 +123,11 @@ function Pointshop2.Airdrops.RegisterTimer( )
 
   local delay = getNextTimedAirdrop( )
 	timer.Create( "Pointshop2_Airdrops", delay, 0, function( )
-    Pointshop2.Airdrops.StartAirDrop( )
+    if #player.GetAll( ) >= Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsSettings.MinPlayers" ) then
+      Pointshop2.Airdrops.StartAirDrop( )
+    else
+      Klogf( 4, "[PS2-Airdrops] Not doing airdrop, not enough players online. Required: %i", Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsSettings.MinPlayers" ) )
+    end
 
     Pointshop2.Airdrops.RegisterTimer( ) -- Start timer for next drop
   end )
