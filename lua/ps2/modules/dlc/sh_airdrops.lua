@@ -35,8 +35,8 @@ hook.Add( "PS2_ModulesLoaded", "DLC_AirDrops", function( )
 			label = "Enable Airdrops system",
 		},
 		DropFrequency = {
-			value = 5,
-			label = "Drop frequency (in Minutes)",
+			value = 10,
+			label = "Drop frequency (in minutes)",
 			tooltip = "Set the drop frequency."
 		},
     VaryPercentage = {
@@ -45,8 +45,18 @@ hook.Add( "PS2_ModulesLoaded", "DLC_AirDrops", function( )
       tooltip = "Make drops less predictable: If this is set to 20%, and drop frequency is set to 10 min, the actual drop frequency will be between 8 and 12 minutes."
     },
 		AmountOfItems = {
+			value = 5,
+			label = "Amount of items in a crate",
+		},
+		CrateLifetime = {
 			value = 10,
-			label = "Amount of items a crate",
+			label = "Crate Lifetime (in minutes)",
+			tooltip = "Time until a crate is automatically removed"
+		},
+		MinPlayers = {
+			value = 4,
+			label = "Minumum Players",
+			tooltip = "Minimum amount of players for a crate to drop"
 		}
 	}
 
@@ -72,3 +82,6 @@ hook.Add( "PS2_ModulesLoaded", "DLC_AirDrops", function( )
 		end )
 	end
 end )
+
+Pointshop2.Airdrops = {}
+Pointshop2.Airdrops.MAX_USE_DISTANCE = 300

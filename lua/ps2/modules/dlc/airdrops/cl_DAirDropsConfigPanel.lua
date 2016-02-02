@@ -10,7 +10,19 @@ function PANEL:Init( )
   self.loadingNotifier = vgui.Create( "DLoadingNotifier", self )
   self.loadingNotifier:Dock( TOP )
 
-  self.infoPanel = vgui.Create( "DInfoPanel", self )
+  local top = vgui.Create( "DSizeToContents", self )
+  top:Dock( TOP )
+  top:SetSizeX( false )
+  top:SetTall( 390 )
+  top:DockMargin( 0, 5, 0, 0 )
+
+  local left = vgui.Create( "DPanel", top )
+  left:Dock( LEFT )
+  left:SetWide( 300 )
+  left:DockMargin( 0, 0, 10, 0 )
+  left.Paint = function( ) end
+
+  self.infoPanel = vgui.Create( "DInfoPanel", left )
   self.infoPanel:Dock( TOP )
   self.infoPanel:SetSmall( true )
   self.infoPanel:SetInfo( "About Airdrops",
@@ -21,18 +33,6 @@ function PANEL:Init( )
 You can only add/edit locations for the map that you are currently playing. If no locations are set up, no crates are dropped.
 ]] )
   self.infoPanel:DockMargin( 0, 5, 0, 0 )
-
-  local top = vgui.Create( "DSizeToContents", self )
-  top:Dock( TOP )
-  top:SetSizeX( false )
-  top:SetTall( 220 )
-  top:DockMargin( 0, 5, 0, 0 )
-
-  local left = vgui.Create( "DPanel", top )
-  left:Dock( LEFT )
-  left:SetWide( 300 )
-  left:DockMargin( 0, 0, 10, 0 )
-  left.Paint = function( ) end
 
   local label1 = vgui.Create( "DLabel", left )
   label1:SetText( "Airdrop Locations (this map)" )
@@ -48,26 +48,27 @@ You can only add/edit locations for the map that you are currently playing. If n
   Derma_Hook( locationsContainer, "Paint", "Paint", "InnerPanel" )
 
   self.spotsTable = vgui.Create( "DListView", locationsContainer )
-  self.spotsTable:Dock( FILL )
+  self.spotsTable:Dock( TOP )
   self.spotsTable:SetWide( 300 )
   self.spotsTable:AddColumn( "Name" )
   self.spotsTable:AddColumn( "Actions" )
   self.spotsTable:SetDataHeight( 30 )
   hook.Add( "PS2_Airdrops_NewPosition", self, self.OnNewAirdropPosition )
+  self.spotsTable:SetTall( 110 )
 
-  self.spotsTable.bottomBar = vgui.Create( "DPanel", locationsContainer )
-  self.spotsTable.bottomBar:Dock( BOTTOM )
-  self.spotsTable.bottomBar:DockMargin( 0, 5, 0, 0 )
-  self.spotsTable.bottomBar.Paint = function() end
-  self.spotsTable.bottomBar:SetTall( 25 )
+  locationsContainer.bottomBar = vgui.Create( "DPanel", locationsContainer )
+  locationsContainer.bottomBar:Dock( BOTTOM )
+  locationsContainer.bottomBar:DockMargin( 0, 5, 0, 0 )
+  locationsContainer.bottomBar.Paint = function() end
+  locationsContainer.bottomBar:SetTall( 25 )
 
-  self.spotsTable.bottomBar.addBtn = vgui.Create( "DButton", self.spotsTable.bottomBar )
-  self.spotsTable.bottomBar.addBtn:SetImage( "pointshop2/plus24.png" )
-  self.spotsTable.bottomBar.addBtn.m_Image:SetSize( 16, 16 )
-  self.spotsTable.bottomBar.addBtn:SetText( "Add" )
-  self.spotsTable.bottomBar.addBtn:Dock( LEFT )
-  self.spotsTable.bottomBar.addBtn:SetSize( 100, 25 )
-  function self.spotsTable.bottomBar.addBtn.DoClick( )
+  locationsContainer.bottomBar.addBtn = vgui.Create( "DButton", locationsContainer.bottomBar )
+  locationsContainer.bottomBar.addBtn:SetImage( "pointshop2/plus24.png" )
+  locationsContainer.bottomBar.addBtn.m_Image:SetSize( 16, 16 )
+  locationsContainer.bottomBar.addBtn:SetText( "Add" )
+  locationsContainer.bottomBar.addBtn:Dock( LEFT )
+  locationsContainer.bottomBar.addBtn:SetSize( 100, 25 )
+  function locationsContainer.bottomBar.addBtn.DoClick( )
     self:StartHelospotPlacement( )
   end
 

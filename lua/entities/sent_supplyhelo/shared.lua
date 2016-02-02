@@ -61,49 +61,7 @@ function ENT:Initialize( )
 		self:SetCollisionGroup( COLLISION_GROUP_IN_VEHICLE )
 	end
 
-	self:SetSpot( )
 	self.mode = "flytospot"
-end
-
-function ENT:SetSpot( spot )
-	-- Calculate positions
-	spot = {
-		pos = Vector(692.5625, 4210.625, 3.03125),
-		ang = Angle(0, 152.65625, 0),
-		height = 1047
-	}
-
-	local heloPos = spot.pos + Vector( 0, 0, spot.height )
-	local tr1 = util.TraceLine( {
-		start = heloPos,
-		endpos = heloPos + spot.ang:Right() * 1000000,
-		mask = MASK_NPCWORLDSTATIC
-	} )
-
-	local tr2 = util.TraceLine( {
-		start = heloPos,
-		endpos = heloPos + spot.ang:Right() * -1000000,
-		mask = MASK_NPCWORLDSTATIC
-	} )
-
-	local start, finish = tr1.HitPos, tr2.HitPos
-	self.startVec = start
-	self.endVec = finish
-	self.aboveCratePos = heloPos
-
-	self:SetPos( self.startVec )
-
-	local ang = ( finish - start ):Angle()
-	ang.p = 9
-	self:SetAngles( ang )
-
-	self.target = self.aboveCratePos
-	self.targetAngle = 30
-
-	if IsValid( self:GetPhysicsObject( ) ) then
-		self:GetPhysicsObject( ):SetVelocityInstantaneous( ( finish - start ):GetNormalized( ) * 8000 )
-		self:GetPhysicsObject( ):ApplyForceCenter( ( finish - start ):GetNormalized( ) * 8000 * self:GetPhysicsObject( ):GetMass( ) )
-	end
 
 	// Enable custom physics
 	timer.Simple( 0.01, function( )
@@ -111,20 +69,12 @@ function ENT:SetSpot( spot )
 	end )
 end
 
-function ENT:DropCrate( )
-	local angles = self.fakeCrate:GetAngles( )
-	self.fakeCrate:Remove( )
-
-	local crate = ents.Create( "prop_physics" )
-	//Position and angles are relative to our future parent.
-	local angle, position = Angle( 0, 0, 0 ), Vector( 0, 0, 15 )
-	crate:SetPos( self:LocalToWorld( position ) )
-	crate:SetAngles( self:LocalToWorldAngles( angle ) )
-	crate:SetModel( "models/care_package/care_package_new.mdl" )
-	crate:Spawn( )
-	constraint.NoCollide( self, crate, 0, 0 )
-	crate:GetPhysicsObject( ):SetVelocityInstantaneous( self:GetPhysicsObject( ):GetVelocity( ) )
+function ENT:SetupDataTables()
+	self:NetworkVar( "Vector", 0, "StartVec" )
+	self:NetworkVar( "Vector", 1, "EndVec" )
+	self:NetworkVar( "Vector", 2, "AboveCratePos" )
 end
+
 
 local mat = Material( "trails/laser" )
 function ENT:PreDrawTranslucentRenderables( )
@@ -215,15 +165,15 @@ function ENT:Think()
 	self:NextThink( CurTime( ) )
 
 	if self.mode == "flytospot" then
-		self.targetAngle = 30 * math.Clamp( ( self:GetVelocity( ):Length( ) - 300 ) / 2000, -1, 1 )
-		print( self.targetAngle )
+		self.targetAngle = 20 * math.Clamp( ( self:GetVelocity( ):Length( ) - 300 ) / 2000, -1, 1 )
+		self.target = self:GetAboveCratePos( )
 	end
 
 	if self.mode == "flyaway" and CurTime( ) - self.flyawayStarted > 0.1 then
-		self.targetAngle = Lerp( ( ( CurTime( ) - self.flyawayStarted ) * 1.5 ) ^ 2, 0, 45 )
+		self.targetAngle = Lerp( ( ( CurTime( ) - self.flyawayStarted ) * 1.5 ) ^ 2, 0, 25 )
 	end
 
-	if self:GetPos( ):Distance( self.aboveCratePos ) <= 10 and self.mode == "flytospot" then
+	if self:GetPos( ):Distance( self:GetAboveCratePos( ) ) <= 10 and self.mode == "flytospot" then
 		self.mode = "flyaway"
 		self.flyawayStarted = CurTime( ) + 0.2
 		timer.Simple( 0.2, function( )
@@ -232,11 +182,11 @@ function ENT:Think()
 			end
 		end )
 		timer.Simple( 0.7, function( )
-			self.target = self.endVec + ( self.endVec - self.startVec ):GetNormalized( ) * 1000 --Set target to far away so helicopter doesnt slow down when flying away
+			self.target = self:GetEndVec( ) + ( self:GetEndVec( ) - self:GetStartVec( ) ):GetNormalized( ) * 2000 --Set target to far away so helicopter doesnt slow down when flying away
 		end )
 	end
 
-	if SERVER and self:GetPos( ):Distance( self.endVec ) <= 10 and self.mode == "flyaway" then
+	if SERVER and self:GetPos( ):Distance( self:GetEndVec( ) ) <= 10 and self.mode == "flyaway" then
 		self:Remove( )
 	end
 

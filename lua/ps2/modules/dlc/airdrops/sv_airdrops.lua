@@ -28,3 +28,110 @@ net.Receive( "AirDrops_StartPlacement", function( len, ply )
   local weapon = ply:GetWeapon( 'weapon_dropplacer' )
   ply:SetActiveWeapon( weapon )
 end )
+
+/*
+  Creates items but does not save them to the database, they do not have an id!
+*/
+function Pointshop2.Airdrops.CreateTempItems( amount )
+	local dropMap = Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsTableSettings.DropsData" )
+
+  --Generate cumulative sum table
+	local sumTbl = {}
+	local sum = 0
+	for k, info in pairs( dropMap ) do
+		sum = sum + info.chance
+		local factoryClass = getClass( info.factoryClassName )
+		if not factoryClass then
+			continue
+		end
+
+		local instance = factoryClass:new( )
+		instance.settings = info.factorySettings
+		if not instance:IsValid( ) then
+			continue
+		end
+
+		table.insert( sumTbl, {sum = sum, factory = instance, chance = info.chance })
+	end
+
+	--Pick element
+  local function pickElement( )
+  	local r = math.random() * sum
+  	local factory, chance
+  	for _, info in ipairs( sumTbl ) do
+  		if info.sum >= r then
+  			factory, chance = info.factory, info.chance
+  			break
+  		end
+  	end
+
+  	if not factory then
+  		return
+  	end
+
+	  return factory:CreateItem( true ), chance
+  end
+
+  local items = { }
+  for i = 1, amount do
+    local item, chance = pickElement( )
+    item._airdropChance = chance
+    table.insert( items, item )
+  end
+  return items
+end
+
+function Pointshop2.Airdrops.StartAirDrop( )
+	if not Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsSettings.EnableDrops" ) then
+		return
+	end
+
+  local validSpots = Pointshop2.GetSetting( "Pointshop 2 DLC", "CrateSpotSettings.CrateSpots" )
+  if #validSpots == 0 then
+    for k, v in pairs( player.GetAll( ) ) do
+      if v:IsAdmin( ) then
+        v:PS2_DisplayError( "[Admin Only] No airdrop spots are configured for this map. Please set up drop spots." )
+      end
+    end
+    return
+  end
+
+  local spot = table.Random( validSpots )
+  local crateContents = Pointshop2.Airdrops.CreateTempItems( Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsSettings.AmountOfItems" ) )
+
+  -- Create helicopter
+  local helicopter = ents.Create( "sent_supplyhelo" )
+  helicopter:SetSpot( spot )
+  helicopter:SetCrateContents( crateContents )
+  helicopter:Spawn()
+	helicopter:Activate()
+end
+
+local function getNextTimedAirdrop( )
+  local varyPercentage = Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsSettings.VaryPercentage" )
+  varyPercentage = ( 100 - ( -varyPercentage + ( math.random( ) * varyPercentage * 2 ) ) ) / 100
+  local delayInSeconds = varyPercentage * Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsSettings.DropFrequency" ) * 60
+  return delayInSeconds
+end
+
+function Pointshop2.Airdrops.RegisterTimer( )
+  timer.Remove( "Pointshop2_Airdrops" )
+  -- Integration plugins can have their own logic and call Pointshop2.Airdrops.StartAirDrop( ) directly
+  if Pointshop2.IsCurrentGamemodePluginPresent( ) and Pointshop2.GetCurrentGamemodePlugin( ).CustomAirdropTimer then
+    return
+  end
+
+  local delay = getNextTimedAirdrop( )
+	timer.Create( "Pointshop2_Airdrops", delay, 0, function( )
+    Pointshop2.Airdrops.StartAirDrop( )
+
+    Pointshop2.Airdrops.RegisterTimer( ) -- Start timer for next drop
+  end )
+end
+
+hook.Add( "PS2_OnSettingsUpdate", "HandleChangeAirdrops", function( )
+	Pointshop2.Airdrops.RegisterTimer( )
+end )
+Pointshop2.SettingsLoadedPromise:Done( function( )
+	Pointshop2.Airdrops.RegisterTimer( )
+end )
