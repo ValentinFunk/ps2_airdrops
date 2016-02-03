@@ -52,10 +52,8 @@ hook.Add( "PS2_ModulesLoaded", "DLC_AirDrops", function( )
 	}
 
 	if SERVER then
-		CreateConVar("pointshop2_airdrops_salt", "{{ user_id | 69 }}", {FCVAR_NOTIFY})
+		CreateConVar("pointshop2_airdrops_salt", "{{ user_id | 69 }}", {FCVAR_NOTIFY, FCVAR_REPLICATED})
 	end
-	local var = GetConVar( "pointshop2_airdrops_salt" )
-	print( "[DEBUG]: Airdrops settings salt: ", var:GetString() )
 
 	MODULE.Settings.Server.AirdropCrateSettings = {
 		info = {
