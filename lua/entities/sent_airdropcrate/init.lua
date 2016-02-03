@@ -14,7 +14,7 @@ function ENT:GetContents( )
 end
 
 function ENT:Use( activator, caller, useType, value )
-  if caller:GetPos( ):Distance( self:GetPos( ) ) <= Pointshop2.Airdrops.MAX_USE_DISTANCE then
+  if caller:GetPos( ):Distance( self:GetPos( ) ) <= Pointshop2.Airdrops.MAX_USE_DISTANCE and caller:Team( ) != TEAM_SPECTATOR then
     AirdropsController:getInstance( ):supplyCrateUsed( caller, self )
   end
 end

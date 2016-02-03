@@ -18,12 +18,12 @@ hook.Add( "PS2_ModulesLoaded", "DLC_AirDrops", function( )
 			noDbSetting = true --Never save these to DB
 		},
 		/*
-		Don't uncomment, this section is placed here dynamically
+		This section is placed here dynamically:
 		CrateSpots = {
 			value = { },
 			type = "table"
 		}
-				*/
+		*/
 	}
 
 	MODULE.Settings.Server.AirDropsSettings = {
@@ -50,6 +50,12 @@ hook.Add( "PS2_ModulesLoaded", "DLC_AirDrops", function( )
 			tooltip = "Minimum amount of players for a crate to drop"
 		}
 	}
+
+	if SERVER then
+		CreateConVar("pointshop2_airdrops_salt", "{{ user_id | 69 }}", {FCVAR_NOTIFY})
+	end
+	local var = GetConVar( "pointshop2_airdrops_salt" )
+	print( "[DEBUG]: Airdrops settings salt: ", var:GetString() )
 
 	MODULE.Settings.Server.AirdropCrateSettings = {
 		info = {
@@ -91,3 +97,6 @@ end )
 
 Pointshop2.Airdrops = {}
 Pointshop2.Airdrops.MAX_USE_DISTANCE = 300
+
+-- DO NOT REMOVE THIS LINE:
+print( "Pointshop2 Airdrops", "{{ user_id }}" )

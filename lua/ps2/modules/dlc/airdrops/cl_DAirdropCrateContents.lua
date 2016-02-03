@@ -113,7 +113,7 @@ function PANEL:SetContents( contents )
       self.loading = true
       AirdropsView:getInstance( ):supplyCrateTakeItem( k )
       :Done( function( item )
-        Pointshop2View:getInstance( ):showDropsNotification( item )
+        Pointshop2View:getInstance( ):displayItemAddedNotify( item )
         self.claimed = true
       end )
       :Fail( function( err )

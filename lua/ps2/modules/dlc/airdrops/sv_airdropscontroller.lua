@@ -101,9 +101,9 @@ function AirdropsController:supplyCrateTakeItem( ply, index )
 		return item --item:save( ) is done by KInventory:addItem
 	end )
 	:Then( function( item )
-		KInventory.ITEMS[item.id] = item
 		return ply.PS2_Inventory:addItem( item )
 		:Then( function( )
+			KInventory.ITEMS[item.id] = item
 			item:OnPurchased( )
 			return item
 		end )
