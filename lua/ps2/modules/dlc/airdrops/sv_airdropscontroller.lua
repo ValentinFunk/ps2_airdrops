@@ -98,7 +98,7 @@ function AirdropsController:supplyCrateTakeItem( ply, index )
 			item.purchaseData.amount = 0
 			item.purchaseData.currency = "points"
 		end
-		return item:save( )
+		return item --item:save( ) is done by KInventory:addItem
 	end )
 	:Then( function( item )
 		KInventory.ITEMS[item.id] = item

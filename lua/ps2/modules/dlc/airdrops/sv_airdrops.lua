@@ -126,7 +126,7 @@ function Pointshop2.Airdrops.RegisterTimer( )
     if #player.GetAll( ) >= Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsSettings.MinPlayers" ) then
       Pointshop2.Airdrops.StartAirDrop( )
     else
-      Klogf( 4, "[PS2-Airdrops] Not doing airdrop, not enough players online. Required: %i", Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsSettings.MinPlayers" ) )
+      KLogf( 4, "[PS2-Airdrops] Not doing airdrop, not enough players online. Required: %i", Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsSettings.MinPlayers" ) )
     end
 
     Pointshop2.Airdrops.RegisterTimer( ) -- Start timer for next drop

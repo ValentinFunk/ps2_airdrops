@@ -60,7 +60,7 @@ hook.Add( "PS2_ModulesLoaded", "DLC_AirDrops", function( )
 			label = "Amount of items in a crate",
 		},
 		CrateLifetime = {
-			value = 10,
+			value = 3,
 			label = "Lifetime (in minutes)",
 			tooltip = "Time until a crate is automatically removed"
 		}

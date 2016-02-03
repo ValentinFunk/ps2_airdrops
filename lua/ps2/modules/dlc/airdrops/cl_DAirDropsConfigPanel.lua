@@ -87,7 +87,8 @@ You can only add/edit locations for the map that you are currently playing. If n
   self.actualSettings = vgui.Create( "DSettingsPanel", right )
   self.actualSettings:Dock( TOP )
   self.actualSettings:AutoAddSettingsTable( {
-    AirDropsSettings = Pointshop2.GetModule( "Pointshop 2 DLC" ).Settings.Server.AirDropsSettings
+    AirDropsSettings = Pointshop2.GetModule( "Pointshop 2 DLC" ).Settings.Server.AirDropsSettings,
+    AirdropCrateSettings = Pointshop2.GetModule( "Pointshop 2 DLC" ).Settings.Server.AirdropCrateSettings,
   } )
   self.actualSettings:DockMargin( 0, 0, 0, 5 )
   self.actualSettings:SetWide( 250 )
