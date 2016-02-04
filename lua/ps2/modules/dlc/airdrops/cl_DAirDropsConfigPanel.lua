@@ -211,6 +211,7 @@ end
 -- Populate controls with settings data
 function PANEL:SetData( data )
   self.actualSettings:SetData( data )
+  self.itemsTable.itemTable:Clear( )
 	self.itemsTable:LoadSaveData( data["AirDropsTableSettings.DropsData"] )
   self.spotsTable:Clear( )
   for k, v in pairs( data["CrateSpotSettings.CrateSpots"] ) do
