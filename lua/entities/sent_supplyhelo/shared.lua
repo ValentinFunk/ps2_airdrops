@@ -57,6 +57,7 @@ function ENT:Initialize( )
 		self.fakeCrate:SetModel( "models/care_package/care_package_new.mdl" )
 
 		self.fakeCrate:Spawn()
+		self.fakeCrate:SetCollisionGroup( COLLISION_GROUP_IN_VEHICLE )
 
 		self:SetCollisionGroup( COLLISION_GROUP_IN_VEHICLE )
 	end
