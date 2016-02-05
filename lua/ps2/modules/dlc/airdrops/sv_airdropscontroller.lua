@@ -65,6 +65,13 @@ function AirdropsController:supplyCrateTakeItem( ply, index )
 		return Promise.Reject( "Inventory Full" )
 	end
 
+	ply.activeCrate.itemsTaken = ply.activeCrate.itemsTaken or {}
+	ply.activeCrate.itemsTaken[ply] = ply.activeCrate.itemsTaken[ply] or 0
+	if ply.activeCrate.itemsTaken[ply] >= Pointshop2.GetSetting( "Pointshop 2 DLC", "AirdropCrateSettings.MaxItemsPerPlayer" ) then
+		KLogf( 3, "Player %s tried to take an item out of a crate, but has already taken max amount of items", ply:Nick( ) )
+		return Promise.Reject( "You have already taken the maximum amount of items out of this crate" )
+	end
+
 	local contents = ply.activeCrate:GetContents( )
 	local item = contents[index]
 	if not item then
@@ -81,6 +88,7 @@ function AirdropsController:supplyCrateTakeItem( ply, index )
 		end
 	end
 
+	ply.activeCrate.itemsTaken[ply] = ply.activeCrate.itemsTaken[ply] + 1
 	return Promise.Resolve( )
 	:Then( function( )
 		local price = item.class:GetBuyPrice( ply )
@@ -107,5 +115,8 @@ function AirdropsController:supplyCrateTakeItem( ply, index )
 			item:OnPurchased( )
 			return item
 		end )
+	end )
+	:Fail( function( )
+		ply.activeCrate.itemsTaken[ply] = ply.activeCrate.itemsTaken[ply] - 1 -- keep in sync
 	end )
 end

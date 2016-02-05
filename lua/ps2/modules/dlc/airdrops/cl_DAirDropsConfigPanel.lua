@@ -47,14 +47,25 @@ You can only add/edit locations for the map that you are currently playing. If n
   locationsContainer:DockPadding( 5, 5, 5, 5 )
   Derma_Hook( locationsContainer, "Paint", "Paint", "InnerPanel" )
 
-  self.spotsTable = vgui.Create( "DListView", locationsContainer )
+  local spotsScroll = vgui.Create( "DScrollPanel", locationsContainer )
+  spotsScroll:Dock( TOP )
+  spotsScroll:SetWide( 300 )
+  spotsScroll:SetTall( 110 )
+  Derma_Hook( spotsScroll, "Paint", "Paint", "InnerPanelBright" )
+
+  self.spotsTable = vgui.Create( "DListView", spotsScroll )
   self.spotsTable:Dock( TOP )
-  self.spotsTable:SetWide( 300 )
   self.spotsTable:AddColumn( "Name" )
   self.spotsTable:AddColumn( "Actions" )
   self.spotsTable:SetDataHeight( 30 )
+  self.spotsTable:SetTall( 300 )
+  self.spotsTable.PerformLayout = function( self )
+    DListView.PerformLayout( self )
+    self:SizeToContents( )
+    self:SetTall( math.min( self:GetTall( ) , 110 ) )
+  end
   hook.Add( "PS2_Airdrops_NewPosition", self, self.OnNewAirdropPosition )
-  self.spotsTable:SetTall( 110 )
+
 
   locationsContainer.bottomBar = vgui.Create( "DPanel", locationsContainer )
   locationsContainer.bottomBar:Dock( BOTTOM )
@@ -88,7 +99,7 @@ You can only add/edit locations for the map that you are currently playing. If n
   self.actualSettings:Dock( FILL )
   self.actualSettings:AutoAddSettingsTable( {
     AirDropsSettings = Pointshop2.GetModule( "Pointshop 2 DLC" ).Settings.Server.AirDropsSettings,
-    AirdropCrateSettings = Pointshop2.GetModule( "Pointshop 2 DLC" ).Settings.Server.AirdropCrateSettings,
+    AirdropCrateSettings = Pointshop2.GetModule( "Pointshop 2 DLC" ).Settings.Shared.AirdropCrateSettings,
   } )
   self.actualSettings:DockMargin( 0, 0, 0, 5 )
   self.actualSettings:SetWide( 250 )
@@ -100,7 +111,7 @@ You can only add/edit locations for the map that you are currently playing. If n
 	self.actualSettings.saveBtn:SetSize( 100, 28 )
   self.actualSettings.saveBtn:DockMargin( 0, 0, 0, 0 )
 	function self.actualSettings.saveBtn.DoClick( )
-		local promise = Pointshop2View:getInstance( ):saveSettings( self.mod, "Server", self.actualSettings.settings )
+		local promise = Pointshop2View:getInstance( ):saveSettings( self.mod, "Shared", self.actualSettings.settings )
     self:DisplayPromiseStatus( promise )
 	end
 

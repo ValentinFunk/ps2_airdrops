@@ -55,7 +55,7 @@ hook.Add( "PS2_ModulesLoaded", "DLC_AirDrops", function( )
 		CreateConVar("pointshop2_airdrops_salt", "{{ user_id | 69 }}", {FCVAR_NOTIFY, FCVAR_REPLICATED})
 	end
 
-	MODULE.Settings.Server.AirdropCrateSettings = {
+	MODULE.Settings.Shared.AirdropCrateSettings = {
 		info = {
 			label = "Crate Settings",
 		},
@@ -67,12 +67,20 @@ hook.Add( "PS2_ModulesLoaded", "DLC_AirDrops", function( )
 			value = 3,
 			label = "Lifetime (in minutes)",
 			tooltip = "Time until a crate is automatically removed"
+		},
+		MaxItemsPerPlayer = {
+			value = 3,
+			label = "Maximum items per player",
+			tooltip = "Maximum amount of items a player can take out of the crate"
 		}
 	}
 
 	local old = MODULE.Resolve or Promise.Resolve
 	MODULE.Resolve = function( )
 		return old( ):Then( function( )
+			return Pointshop2.StoredSetting.removeWhere{plugin="Pointshop 2 DLC", path="CrateSpotSettings.CrateSpots"}
+		end )
+		:Then( function( )
 			return Pointshop2.AirdropDropSpot.findWhere{ map = game.GetMap( ) }
 			:Then( function( spots )
 				MODULE.Settings.Server.CrateSpotSettings.CrateSpots = {

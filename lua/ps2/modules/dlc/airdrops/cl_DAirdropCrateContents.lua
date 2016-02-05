@@ -6,6 +6,18 @@ function PANEL:Init( )
 
   self:SetTitle( "Airdrop Crate" )
 
+  self.info = vgui.Create( "DLabel", self )
+  self.info:Dock( TOP )
+  self.info:SetColor( self:GetSkin( ).Highlight )
+  self.info._Paint = self.info.Paint or function( ) end
+  self.info:SetContentAlignment( 5 )
+  self.info:DockMargin( 0, 5, 5, 5 )
+  function self.info:Paint( w, h )
+    self._Paint( self, w, h )
+    derma.SkinHook( "Paint", "InnerPanel", self, w, h )
+  end
+  self.info:SetFont( self:GetSkin( ).TextFont )
+
   self.scroll = vgui.Create( "DScrollPanel", self )
   self.scroll:Dock( FILL )
 
@@ -24,10 +36,16 @@ function PANEL:Think( )
   if self.crate:GetPos( ):Distance( LocalPlayer( ):GetPos( ) ) > Pointshop2.Airdrops.MAX_USE_DISTANCE then
     return self:Remove( )
   end
-end
 
-function PANEL:TakeItem( index )
-  local panel
+  self.amountLeft = Pointshop2.GetSetting( "Pointshop 2 DLC", "AirdropCrateSettings.MaxItemsPerPlayer" )
+  if IsValid( self.crate ) and self.crate.itemsTaken then
+    self.amountLeft = math.max( 0, self.amountLeft - self.crate.itemsTaken ) --  amountLeft is >= 0
+  end
+  if self.amountLeft == 0 then
+    self.info:SetText( "You have taken the maxium amount of items" )
+  else
+    self.info:SetText( "You can take " .. self.amountLeft .. " more items" )
+  end
 end
 
 // Bit larger function so taken into seperate function. PaintOver of the item rows
@@ -57,17 +75,23 @@ local function itemPanelPaintOver( self, w, h )
     textcol = self:GetSkin().Colours.Label.Dark
     drawOverlay( )
   elseif self.Hovered or self:IsChildHovered( 6 ) then
-    local col = table.Copy( self:GetSkin().InnerPanel )
-    col.a = 150
-    surface.SetDrawColor( col )
-    surface.DrawRect( 0, 0, w, h )
+    if self.airdropsGui.amountLeft and self.airdropsGui.amountLeft == 0 then
+      text = "Limit Reached"
+      textcol = self:GetSkin().Colours.Label.Dark
+      drawOverlay( )
+    else
+      local col = table.Copy( self:GetSkin().InnerPanel )
+      col.a = 150
+      surface.SetDrawColor( col )
+      surface.DrawRect( 0, 0, w, h )
 
-    local col = table.Copy( self:GetSkin().Colours.Label.Highlight )
-    col.a = 150
-    surface.SetDrawColor( col )
+      local col = table.Copy( self:GetSkin().Colours.Label.Highlight )
+      col.a = 150
+      surface.SetDrawColor( col )
 
-    surface.DrawRect( 0, 0, w, h )
-    text = "Take"
+      surface.DrawRect( 0, 0, w, h )
+      text = "Take"
+    end
   end
 
   draw.SimpleText( text, self:GetSkin( ).BigTitleFont, w / 2, h / 2, textcol, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER )
@@ -75,6 +99,7 @@ end
 
 
 function PANEL:SetContents( contents )
+  local airdropsGui = self
   for k, item in pairs( contents ) do
 		local pnl = vgui.Create( "DButton", self.scroll )
 		pnl:SetTall( 75 )
@@ -83,6 +108,7 @@ function PANEL:SetContents( contents )
 		pnl:SetText( "" )
 		pnl:DockMargin( 0, 5, 5, 5 )
     self.itemPanels[k] = item
+    pnl.airdropsGui = airdropsGui
 
 		pnl.icon = item:getNewInventoryIcon( )
 		pnl.icon:SetSize( 64, 64 )
@@ -105,12 +131,14 @@ function PANEL:SetContents( contents )
     pnl.class:SetMouseInputEnabled( false )
 
 		function pnl:DoClick( )
-      if self.claimed or self.taken then
+      if self.claimed or self.taken or airdropsGui.amountLeft == 0 then
         return
       end
 
       self:SetDisabled( true )
       self.loading = true
+
+      airdropsGui.crate.itemsTaken = ( airdropsGui.crate.itemsTaken or 0 ) + 1
       AirdropsView:getInstance( ):supplyCrateTakeItem( k )
       :Done( function( item )
         Pointshop2View:getInstance( ):displayItemAddedNotify( item )
@@ -123,6 +151,7 @@ function PANEL:SetContents( contents )
         end
         Pointshop2View:getInstance( ):displayError( "Error claming item: " .. tostring( err ) )
         self.error = true
+        airdropsGui.crate.itemsTaken = airdropsGui.crate.itemsTaken - 1 -- undo counter
       end )
       :Always( function( )
         self.loading = false
