@@ -88,6 +88,17 @@ function AirdropsController:supplyCrateTakeItem( ply, index )
 		end
 	end
 
+	-- Remove crate if empty
+	local allTaken = true
+	for k, v in pairs(contents) do
+		if not v._airdropsTaken then
+			allTaken = false
+		end
+	end
+	if allTaken then
+		ply.activeCrate:Remove( )
+	end
+
 	ply.activeCrate.itemsTaken[ply] = ply.activeCrate.itemsTaken[ply] + 1
 	return Promise.Resolve( )
 	:Then( function( )
