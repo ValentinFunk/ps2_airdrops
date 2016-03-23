@@ -35,7 +35,9 @@ function ENT:Initialize( )
 		local lifetime = Pointshop2.GetSetting( "Pointshop 2 DLC", "AirdropCrateSettings.CrateLifetime" ) * 60
 		local timername = "AirDropCrate" .. self:GetCreationID()
 		timer.Create( timername, lifetime, 1, function( )
-			self:Remove( )
+			if IsValid( self ) then
+				self:Remove( )
+			end
 			timer.Remove( timername )
 		end )
   end
