@@ -214,7 +214,9 @@ end
 function PANEL:RequestSettings( )
   local promise = Pointshop2.RequestSettings( "Pointshop 2 DLC" )
   :Done( function( data )
-    self:SetData( data )
+    if IsValid(self) then
+      self:SetData( data )
+    end
   end )
   self:DisplayPromiseStatus( promise )
 end
