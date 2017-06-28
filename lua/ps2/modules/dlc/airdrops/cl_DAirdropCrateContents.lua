@@ -107,7 +107,7 @@ function PANEL:SetContents( contents )
 		pnl:DockPadding( 5, 5, 5, 5 )
 		pnl:SetText( "" )
 		pnl:DockMargin( 0, 5, 5, 5 )
-    self.itemPanels[k] = item
+    self.itemPanels[k] = pnl
     pnl.airdropsGui = airdropsGui
 
 		pnl.icon = item:getNewInventoryIcon( )
