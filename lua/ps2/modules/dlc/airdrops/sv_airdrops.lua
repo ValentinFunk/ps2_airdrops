@@ -81,6 +81,16 @@ function Pointshop2.Airdrops.CreateTempItems( amount )
   return items
 end
 
+function Pointshop2.Airdrops.ParameterAirdrop( spot )
+  local crateContents = Pointshop2.Airdrops.CreateTempItems( Pointshop2.GetSetting( "Pointshop 2 DLC", "AirdropCrateSettings.AmountOfItems" ) )
+  -- Create helicopter
+  local helicopter = ents.Create( "sent_supplyhelo" )
+  helicopter:SetSpot( spot )
+  helicopter:SetCrateContents( crateContents )
+  helicopter:Spawn()
+  helicopter:Activate()
+end
+
 function Pointshop2.Airdrops.StartAirDrop( )
 	if not Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsSettings.EnableDrops" ) then
 		return
@@ -97,14 +107,7 @@ function Pointshop2.Airdrops.StartAirDrop( )
   end
 
   local spot = table.Random( validSpots )
-  local crateContents = Pointshop2.Airdrops.CreateTempItems( Pointshop2.GetSetting( "Pointshop 2 DLC", "AirdropCrateSettings.AmountOfItems" ) )
-
-  -- Create helicopter
-  local helicopter = ents.Create( "sent_supplyhelo" )
-  helicopter:SetSpot( spot )
-  helicopter:SetCrateContents( crateContents )
-  helicopter:Spawn()
-	helicopter:Activate()
+  Pointshop2.Airdrops.ParameterAirdrop( spot )
 end
 
 local function getNextTimedAirdrop( )
