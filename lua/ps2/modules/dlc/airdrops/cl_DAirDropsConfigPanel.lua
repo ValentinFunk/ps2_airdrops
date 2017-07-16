@@ -199,14 +199,18 @@ end
 function PANEL:DisplayPromiseStatus( promise )
   self.loadingNotifier:Expand( )
   self:SetDisabled( true )
-  promise:Done( function( ... )
-    self:SetDisabled( false )
+  promise:Done( function( )
+    if IsValid(self) then
+      self:SetDisabled( false )
+    end
   end )
   promise:Fail( function( err )
     Pointshop2View:getInstance( ):displayError( err )
   end )
   :Always( function( )
-    self.loadingNotifier:Collapse( )
+    if IsValid(self) then
+      self.loadingNotifier:Collapse( )
+    end
   end )
 end
 
@@ -214,7 +218,9 @@ end
 function PANEL:RequestSettings( )
   local promise = Pointshop2.RequestSettings( "Pointshop 2 DLC" )
   :Done( function( data )
-    self:SetData( data )
+    if IsValid(self) then
+      self:SetData( data )
+    end
   end )
   self:DisplayPromiseStatus( promise )
 end
