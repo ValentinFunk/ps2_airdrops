@@ -75,8 +75,10 @@ function Pointshop2.Airdrops.CreateTempItems( amount )
   local items = { }
   for i = 1, amount do
     local item, chance = pickElement( )
-    item._airdropChance = chance
-    table.insert( items, item )
+    if item then
+      item._airdropChance = chance
+      table.insert( items, item )
+    end
   end
   return items
 end
