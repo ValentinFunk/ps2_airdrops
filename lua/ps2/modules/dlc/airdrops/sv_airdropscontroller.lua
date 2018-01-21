@@ -122,7 +122,6 @@ function AirdropsController:supplyCrateTakeItem( ply, index )
 	:Then( function( item )
 		return ply.PS2_Inventory:addItem( item )
 		:Then( function( )
-			KInventory.ITEMS[item.id] = item
 			item:OnPurchased( )
 			return item
 		end )
