@@ -142,9 +142,16 @@ function PANEL:SetContents( contents )
       AirdropsView:getInstance( ):supplyCrateTakeItem( k )
       :Done( function( item )
         Pointshop2View:getInstance( ):displayItemAddedNotify( item )
+        if not IsValid(self) then
+          return
+        end
         self.claimed = true
       end )
       :Fail( function( err )
+        if not IsValid(self) then
+          return
+        end
+
         if err == "Already Taken" then
           self:SetTaken( )
           return
@@ -154,6 +161,10 @@ function PANEL:SetContents( contents )
         airdropsGui.crate.itemsTaken = airdropsGui.crate.itemsTaken - 1 -- undo counter
       end )
       :Always( function( )
+        if not IsValid(self) then
+          return
+        end
+        
         self.loading = false
       end )
 		end
