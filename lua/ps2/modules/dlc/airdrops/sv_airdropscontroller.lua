@@ -131,3 +131,16 @@ function AirdropsController:supplyCrateTakeItem( ply, index )
 		ply.activeCrate.itemsTaken[ply] = ply.activeCrate.itemsTaken[ply] - 1 -- keep in sync
 	end )
 end
+
+local function checkContentInstalled(ply)
+	if not util.IsValidModel("models/care_package/care_package_new.mdl") then
+		if ply:IsAdmin( ) then
+			ply:PS2_DisplayError( "[CRITICAL][ADMIN ONLY] Pointshop 2 Airdrops will not work if the Pointshop2 Assets workshop addon isn't installed on the server. Read: bit.ly/airdrops.", 1000 )
+		end
+	end
+end
+hook.Add("PS2_PlayerFullyLoaded", "ErrorNotifier", function(ply) 
+	timer.Simple(2, function() 
+		checkContentInstalled(ply)
+	end)
+end)
