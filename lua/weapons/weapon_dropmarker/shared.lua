@@ -2,27 +2,6 @@
 
 AddCSLuaFile( )
 
-hook.Add( "Initialize", "TTTSupportMarker", function( )
-	if engine.ActiveGamemode( ) != "terrortown" then
-		return
-	end
-
-	local tttbase = weapons.GetStored('weapon_tttbase')
-	local MARKER  = weapons.GetStored('weapon_dropmarker')
-	MARKER.StoredAmmo = 0
-	MARKER.GetIronsights = tttbase.GetIronsights
-	MARKER.IsEquipment = tttbase.IsEquipment
-	MARKER.PreDrop = tttbase.PreDrop
-	MARKER.DampenDrop = tttbase.DampenDrop
-	MARKER.Ammo1 = tttbase.Ammo1
-	MARKER.Equip = function( self )
-		tttbase.Equip( self )
-	end
-	MARKER.WasBought = MARKER.WasBought
-	MARKER.DyingShot = function( ) end
-	MARKER.GetHeadshotMultiplier = function( ) end
-end )
-
 SWEP.Author = "Kamshak"
 SWEP.Contact = ""
 SWEP.Purpose = "Marks a Pointshop 2 Airdrop"
@@ -284,4 +263,23 @@ function SWEP:Initialize()
    self:SetPin(false)
 
    self.was_thrown = false
+
+  if engine.ActiveGamemode( ) != "terrortown" then
+    return
+  end
+
+  local tttbase = weapons.GetStored('weapon_tttbase')
+  local MARKER  = weapons.GetStored('weapon_dropmarker')
+  MARKER.StoredAmmo = 0
+  MARKER.GetIronsights = function() end
+  MARKER.IsEquipment = tttbase.IsEquipment
+  MARKER.PreDrop = tttbase.PreDrop
+  MARKER.DampenDrop = tttbase.DampenDrop
+  MARKER.Ammo1 = tttbase.Ammo1
+  MARKER.Equip = function( self )
+    tttbase.Equip( self )
+  end
+  MARKER.WasBought = MARKER.WasBought
+  MARKER.DyingShot = function( ) end
+  MARKER.GetHeadshotMultiplier = function( ) end
 end

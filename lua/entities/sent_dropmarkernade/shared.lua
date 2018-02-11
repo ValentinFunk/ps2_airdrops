@@ -43,10 +43,16 @@ function ENT:Explode( )
     return
   end
 
-  timer.Simple( 10, function( )
+  timer.Simple( 8, function( )
+    if not self:IsValid() then
+      -- Nade got removed before Helicopter came
+      print("Airdrop nade got removed before the helicopter could come.")
+      return
+    end
+
     local tr = util.TraceLine( {
       start = self:GetPos( ),
-      endpos = self:GetPos( ) + Vector( 0, 0, 1 ) * 1000000,
+      endpos = self:GetPos( ) + Vector( 0, 0, 1000000 ),
       mask = MASK_NPCWORLDSTATIC
     })
 
@@ -83,6 +89,17 @@ function ENT:Explode( )
       end
       if valid then
         Pointshop2.Airdrops.ParameterAirdrop( spot )
+
+        --[[ 
+          -- Shitty version
+          local crate = ents.Create( "sent_airdropcrate" )
+          crate:SetPos( spot.pos + Vector( 0, 0, spot.height - 50 ) )
+          crate:SetAngles( Angle( 0, 0, 0 ) )
+          crate:Spawn( )
+
+          local crateContents = Pointshop2.Airdrops.CreateTempItems( Pointshop2.GetSetting( "Pointshop 2 DLC", "AirdropCrateSettings.AmountOfItems" ) )
+          crate:SetContents( crateContents )
+        ]]--
       else
         self:InvalidAirdrop( )
       end
