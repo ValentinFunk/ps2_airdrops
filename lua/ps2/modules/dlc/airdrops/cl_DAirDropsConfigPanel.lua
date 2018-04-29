@@ -110,9 +110,8 @@ You can only add/edit locations for the map that you are currently playing. If n
 	self.actualSettings.saveBtn:Dock( TOP )
 	self.actualSettings.saveBtn:SetSize( 100, 28 )
   self.actualSettings.saveBtn:DockMargin( 0, 0, 0, 0 )
-	function self.actualSettings.saveBtn.DoClick( )
-		local promise = Pointshop2View:getInstance( ):saveSettings( self.mod, "Shared", self.actualSettings.settings )
-    self:DisplayPromiseStatus( promise )
+  function self.actualSettings.saveBtn.DoClick( )
+		self:SaveSettings()
 	end
 
   local label1 = vgui.Create( "DLabel", self )
@@ -137,12 +136,7 @@ You can only add/edit locations for the map that you are currently playing. If n
 	self.itemsTable.bottomBar.saveBtn:SetSize( 100, 40 )
   self.itemsTable.bottomBar.saveBtn:DockMargin( 5, 0, 0, 0 )
 	function self.itemsTable.bottomBar.saveBtn.DoClick( )
-    local settings = {
-      ["AirDropsTableSettings.DropsData"] = self.itemsTable:GetSaveData( )
-    }
-
-  	local promise = Pointshop2View:getInstance( ):saveSettings( self.mod, "Server", settings )
-    self:DisplayPromiseStatus( promise )
+    self:SaveSettings()
 	end
 
   hook.Add( "PS2_OnSettingsUpdate", self, self.RequestSettings )
@@ -184,15 +178,29 @@ function PANEL:OnNewAirdropPosition( positionData )
 end
 
 function PANEL:StartHelospotPlacement( )
+  if LocalPlayer():GetObserverMode() != OBS_MODE_NONE then
+    Derma_Message("You cannot do this as spectator. Please make sure you are alive.", "Error")
+    return
+  end
+  
+  self:SaveSettings()
   net.Start( "AirDrops_StartPlacement" )
   net.SendToServer( )
-
   Pointshop2.Menu:SetVisible( false )
   gui.EnableScreenClicker( false )
 end
 
 function PANEL:OnActivate( )
   self:RequestSettings( )
+end
+
+function PANEL:SaveSettings()
+  local settings = { }
+  table.Merge(settings, self.actualSettings.settings)
+  settings["AirDropsTableSettings.DropsData"] = self.itemsTable:GetSaveData( )
+
+  local promise = Pointshop2View:getInstance( ):saveSettings( self.mod, "Shared", settings )
+  self:DisplayPromiseStatus( promise )
 end
 
 -- Notify the panel that a promise is loading, shows loading indicator automatically

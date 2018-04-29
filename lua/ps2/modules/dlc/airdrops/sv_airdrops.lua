@@ -33,7 +33,8 @@ end )
   Creates items but does not save them to the database, they do not have an id!
 */
 function Pointshop2.Airdrops.CreateTempItems( amount )
-	local dropMap = Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsTableSettings.DropsData" )
+  local dropMap = Pointshop2.GetSetting( "Pointshop 2 DLC", "AirDropsTableSettings.DropsData" )
+  local configHasInvalidFactories = false
 
   --Generate cumulative sum table
 	local sumTbl = {}
@@ -41,13 +42,15 @@ function Pointshop2.Airdrops.CreateTempItems( amount )
 	for k, info in pairs( dropMap ) do
 		sum = sum + info.chance
 		local factoryClass = getClass( info.factoryClassName )
-		if not factoryClass then
+    if not factoryClass then
+      configHasInvalidFactories = true
 			continue
 		end
 
 		local instance = factoryClass:new( )
 		instance.settings = info.factorySettings
-		if not instance:IsValid( ) then
+    if not instance:IsValid( ) then
+      configHasInvalidFactories = true
 			continue
 		end
 
@@ -80,11 +83,28 @@ function Pointshop2.Airdrops.CreateTempItems( amount )
       table.insert( items, item )
     end
   end
-  return items
+  return items, configHasInvalidFactories
 end
 
 function Pointshop2.Airdrops.ParameterAirdrop( spot )
-  local crateContents = Pointshop2.Airdrops.CreateTempItems( Pointshop2.GetSetting( "Pointshop 2 DLC", "AirdropCrateSettings.AmountOfItems" ) )
+  local crateContents, configHasInvalidFactories = Pointshop2.Airdrops.CreateTempItems( Pointshop2.GetSetting( "Pointshop 2 DLC", "AirdropCrateSettings.AmountOfItems" ) )
+  if #crateContents == 0 then
+    for k, v in pairs( player.GetAll( ) ) do
+      if v:IsAdmin( ) then
+        v:PS2_DisplayError( "[Admin Only] Airdrops setup contains no valid items. An airdrop has been cancelled. Please go into the airdrops configuration and fix crate contents errors." )
+      end
+    end
+    return
+  end
+
+  if configHasInvalidFactories then
+    for k, v in pairs( player.GetAll( ) ) do
+      if v:IsAdmin( ) then
+        v:PS2_DisplayError( "[Admin Only] Airdrops setup contains invalid items. Please go into the airdrops configuration and fix crate contents errors." )
+      end
+    end
+  end
+
   -- Create helicopter
   local helicopter = ents.Create( "sent_supplyhelo" )
   helicopter:SetSpot( spot )
