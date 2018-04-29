@@ -183,11 +183,20 @@ function ENT:Think()
 			end
 		end )
 		timer.Simple( 0.7, function( )
-			self.target = self:GetEndVec( ) + ( self:GetEndVec( ) - self:GetStartVec( ) ):GetNormalized( ) * 2000 --Set target to far away so helicopter doesnt slow down when flying away
+			if not IsValid( self ) then return end
+			if not self.GetEndVec then
+				self:Remove( ) 
+			end
+			self.target = self:GetEndVec( ) + ( self:GetEndVec( ) - self:GetStartVec( ) ):GetNormalized( ) * 500 --Set target to far away so helicopter doesnt slow down when flying away
+		end )
+		timer.Simple( 5, function( )
+			if IsValid( self ) then
+				self:Remove( )
+			end
 		end )
 	end
 
-	if SERVER and self:GetPos( ):Distance( self:GetEndVec( ) ) <= 10 and self.mode == "flyaway" then
+	if SERVER and self:GetPos( ):Distance( self:GetEndVec( ) ) <= 100 and self.mode == "flyaway" then
 		self:Remove( )
 	end
 
